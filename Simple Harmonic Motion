@@ -1,0 +1,38 @@
+from visual import*      #import visual features
+from visual.graph import *	 # import graphing features
+
+#defining values
+g = 9.81 #gravity
+k = 8 #spring constant
+m = 0.06 #mass of object #kg
+relaxed_length = 0.2 #relaxed length of spring
+
+
+#objects
+mass = cylinder (pos=(0,0.1,0), axis=(0,0.05,0), radius = 0.05, color=color.blue) #y position here is the compressed length
+floor = box (pos=(0, 0, 0), length = 0.4, height = 0.02, width = 0.4) #nice floor
+spring = helix(pos=(0,0,0), axis=(0,0.1,0), radius=0.05, coils=10,thickness=0.008, color=color.yellow) #trippy spring
+
+
+#graph
+gd = gdisplay(x=400, y=0, width=600, height=300, title='THE GRAPH', xtitle='time', ytitle='spring length', foreground=color.black,
+              background=color.white)
+f1 = gcurve(color=color.blue)
+
+
+#Movement
+dt = 0.001 #time step
+t = 0 #initial time
+velocity_mass = 0 #initial velocity 
+
+while t <= 30:  #time interval = 1 second
+    rate(1/dt) 
+    force_mass = -k*(mass.pos.y - relaxed_length)  #y component of force in each time step
+    velocity_mass = (-k*(mass.pos.y - relaxed_length) -m*g)*dt/m + velocity_mass #velocity of mass
+    mass.pos.y = velocity_mass*dt + mass.pos.y #updating y position of mass
+    spring.axis = mass.pos  #setting axis of spring relative to position of mass
+    t = t+dt 
+
+    f1.plot(pos=(t,mass.pos.y))
+   
+    
