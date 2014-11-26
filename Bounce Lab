@@ -1,0 +1,52 @@
+from visual import*
+
+#Functions
+
+def slope(v):
+    return (v.y/v.x)
+
+def intercept(pos, slope):
+    return pos.y-slope*pos.x
+
+def bounce(vBall,axisWall):
+    return 2*dot(vBall,norm(axisWall))*norm(axisWall)-vBall
+    
+
+#Objects
+Wall= box(pos=(0,0,0), axis = (-3,2,0), height = 0.1, width = 0.01, color=color.green)
+Ball = sphere(pos=vector(-4,-3,0),radius=0.2,color=color.white, make_trail=True)
+Ball.v = vector(1,1,0)
+
+#Arrow
+vscale = 1#scale of arrow
+varr = arrow(pos=Ball.pos, axis=Ball.v*vscale, color=color.yellow)#the arrow
+
+#slope
+bSlope = slope(Ball.v)
+wSlope = slope(Wall.axis)
+
+#intercepts 
+bIntercept = intercept(Ball.pos,bSlope)
+wIntercept = intercept(Wall.pos,wSlope)
+
+#Interception:
+x = (wIntercept - bIntercept) / (bSlope - wSlope)
+y = (x*bSlope + bIntercept)
+
+dr=sqrt((Ball.pos.x - x)**2 + (Ball.pos.y - y)**2)
+
+#moving ball!!!
+Ball.pos.x = x
+Ball.pos.y = y
+
+Ball.pos = Ball.pos
+
+#find velocity with bounce!!!
+Ball.v = bounce(Ball.v,Wall.axis)
+Ball.pos = Ball.pos + norm(Ball.v)  * dr
+
+
+
+
+
+
