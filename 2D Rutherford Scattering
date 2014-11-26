@@ -1,0 +1,103 @@
+from visual import *
+from visual.graph import*
+scene.width = 800
+scene.height = 800
+
+#Particles
+mProton = 1.67e-27
+qProton = 1.6e-19
+
+mAlpha = 4*mProton
+cAlpha = 2*qProton
+
+mGold = 197*mProton
+cGold = 79*qProton
+
+vAlpha = float(input('What is the initial x velocity of the Alpha particle? (Keep value under 3e8)'))
+
+dt= ( (3e-13)/vAlpha)/100
+
+k = 9e9
+
+b = float(input('What value do you want for the impact parameter? (Keep value within the magnitude of xe-14)'))
+
+c = 3e8
+
+#defining stuff
+#pAlpha = vector(mAlpha*vAlpha,0,0) #Non-Relavistic 
+pAlpha = vector((1/sqrt(1-(vAlpha/c)**2))*mAlpha*vAlpha,0,0)  #Relavistic
+pGold = vector(0,0,0)
+pTotal = pAlpha + pGold
+
+#Objects
+Alpha = sphere(pos=vector(-3e-13,b,0),radius=1e-15,color=color.blue, make_trail=True)
+Gold = sphere(pos=vector(0,0,0),radius=6e-15,color=color.yellow)
+
+t = 0
+
+Ro = mag((Alpha.pos - Gold.pos))
+
+#Graph
+g2 = gdisplay(xmin=0, xmax= 2e-20, ymin=-3e-19, ymax=3e-19, xtitle = 'time', ytitle= 'Py', x=scene.width/2, y = scene.height/2, width = scene.width/2, height = 200)
+pAlphay = gcurve(color=color.cyan, display = g2.display)
+pGoldy = gcurve(color = color.yellow, display = g2.display)
+pTotaly = gcurve(color = color.green, display = g2.display)
+g1 = gdisplay(xmin = 0, xmax = 2e-20, ymin = -3e-19, ymax = 3e-19, xtitle ='time', ytitle ='Px', x=0, y = scene.height/2, width = scene.width/2, height = 200)
+pAlphax = gcurve(color=color.cyan, display = g1.display)
+pGoldx = gcurve(color = color.yellow, display = g1.display)
+pTotalx = gcurve(color = color.green, display = g1.display)
+
+minimum = 1
+
+#Looooooop
+while t < 1000:
+    rate(100) ## slow down motion to make animation look nicer
+    #print mag(Alpha.pos-Gold.pos)
+    if mag(Alpha.pos-Gold.pos) < minimum:
+        minimum = mag(Alpha.pos-Gold.pos)
+        #print("to: " + str(minimum))
+    
+    #Alpha.pos = Alpha.pos + (pAlpha/mAlpha)*dt #non-relavistic 
+    Alpha.pos = Alpha.pos + (  (sqrt(1-(vAlpha/c)**2))*pAlpha /mAlpha)*dt #Relavistic
+    t = t+dt
+
+    #define distance between two particles
+    r1 = (Alpha.pos - Gold.pos)  #distance between gold particle and alpha particle
+    r1Mag = mag(r1)  #use rMag to calculate other stuff
+    r1Hat = norm(r1) #defining direction of the distance 
+
+    r2 = (Gold.pos - Alpha.pos)  #distance between gold particle and alpha particle
+    r2Mag = mag(r2)  #use rMag to calculate other stuff
+    r2Hat = norm(r2) #defining direction of the distance 
+
+    #electric force on alpha
+    fAElectric = (k*cAlpha*cGold*r1Hat)/(r1Mag**2)
+
+    pAlpha = pAlpha + fAElectric*dt
+
+    #electric force on gold
+    fGElectric = (k*cAlpha*cGold*r2Hat)/(r2Mag**2)
+
+    pGold = pGold + fGElectric*dt
+
+    #plot
+    pAlphax.plot(pos=(t,pAlpha.x))
+    pAlphay.plot(pos=(t,pAlpha.y))
+    pGoldx.plot(pos =(t,pGold.x))
+    pGoldy.plot(pos =(t,pGold.y))
+    pTotalx.plot(pos =(t,pTotal.x))
+    pTotaly.plot(pos =(t,pTotal.y))
+
+
+    if r1Mag > Ro*1.1:
+        break
+
+#angle
+angle = diff_angle(pAlpha, vector(pAlpha.x,0,0))
+print('Your scattering angle is' ,(degrees(angle)))
+
+#distance r
+if minimum <= 7e-15:
+    print('The two particles are touching!')
+else:
+    print('The minimum distance between the surface of the two particles is', minimum - 7e-15)
