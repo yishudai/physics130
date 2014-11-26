@@ -1,0 +1,54 @@
+from visual import*
+from visual.graph import*
+
+#ball characteristics
+m = 0.155
+r = 0.035
+p = 0.83*1.3
+C = 0.35
+vball= vector (31.6, 31.6, 0)
+g = 9.8
+pi = 3.14
+A = pi*r**2
+pball = m*vball
+
+#stuff on the screen
+ball = sphere(pos = (-60, 0, 0), radius = r, color = color.white, make_trail = True)
+ground = box(pos = (0, 0, 0), axis = (1,0,0), size =(230, 2, 230), color = color.green)
+
+#forces
+F_g = (0, -m*g, 0)
+
+#Graph
+g1 = gdisplay(xmin=0, xmax= 6, ymin=0, ymax=200, xtitle = 'time', ytitle= 'K, U and E', x=scene.width/2, y = scene.height/2, height = 800, width =800)
+K = gcurve(color=color.cyan)
+U = gcurve(color = color.green)
+E = gcurve(color= color.orange)
+
+t = 0
+
+while True:
+    dt = 0.01
+    t = t+dt
+    rate(100)
+    vmag = mag(vball)
+    vhat = norm(vball)
+    F_a = -(.5)*p*((vmag)**2)*C*A*vhat
+    F_net = F_a + F_g
+    pball = pball + F_net*dt
+    vball = pball/m
+    ball.pos = ball.pos + (vball)*dt
+    Kvalue = 0.5*m*(mag(vball))**2
+    Uvalue = m*g*ball.pos.y
+    
+     #plot
+    K.plot(pos=(t,Kvalue))
+    U.plot(pos=(t,Uvalue))
+    E.plot(pos=(t,Kvalue + Uvalue))
+        
+    if ball.pos.y < 0:
+        break
+
+print ball.pos.x + 60
+print Kvalue
+print Uvalue
