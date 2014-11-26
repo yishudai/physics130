@@ -1,0 +1,45 @@
+
+from visual import *
+scene.width =800
+scene.height = 800
+
+#CONSTANTS
+G = 6.7e-11
+dt = 60
+mEarth = 6e24
+mcraft = 15e3
+
+#OBJECTS AND INITIAL VALUES
+Earth = sphere(pos=vector(0,0,0),radius=6.4e6,color=color.white,material=materials.BlueMarble)
+craft = sphere(pos=vector(-10*Earth.radius,0,0),radius=1e6,color=color.yellow,make_trail=True)
+vcraft = vector(0,2e3,0) #initial velocity is straight up along y
+pcraft = mcraft*vcraft
+t = 0
+
+#CALCULATION LOOP: ALL REPEATED CALCULATIONS GO INSIDE THE LOOP
+while t < 10*365*24*60*60:
+    rate(100)                   ## slow down motion to make animation look nicer
+    #We're going to put in the effect of gravity here
+    
+    #radius vector
+    r=craft.pos
+
+    #The magnitude of the relative position vector
+    rmag = mag(r)
+
+    #The magnitude of the gravitational force
+    F = (G*mcraft*mEarth)/rmag**2
+
+    #the unit vector
+    rhat = norm(r)
+
+    #the gravitational force as a vector
+    Fg = (-G*mcraft*mEarth*rhat)/rmag**2
+
+    craft.pos = craft.pos + (pcraft/mcraft)*dt
+    t = t+dt
+
+    pcraft=pcraft+Fg*dt
+
+    if rmag<Earth.radius:
+        break
