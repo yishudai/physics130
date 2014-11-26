@@ -1,0 +1,43 @@
+from visual import *
+'forming the size, color of ball and walls'
+ball = sphere (pos=(-5,0,0), radius=0.5, color=color.cyan)#making the ball
+wallR= box(pos=(6,0,0), size=(0.2,12,12), color=color.green)#right wall
+wallL= box(pos=(-6,0,0), size=(0.2,12,12), color=color.orange)#left wall
+wallB= box(pos=(0,0,-6), size=(12,12,0.2), color=color.blue)#back wall
+wallU= box(pos=(0,6,0), size=(12,0.2,12), color=color.red)#ceiling
+wallD= box(pos=(0,-6,0), size=(12,0.2,12), color=color.yellow)#floor
+wallO= box(pos=(0,0,6), size=(12,12,0.2), color=color.red, opacity=0)#outer
+ball.velocity = vector (25,50,30) #velocity of ball
+
+deltat = 0.005 #duration of time
+t = 0 #setting time to 0
+
+vscale = 0.1#scale of arrow
+varr = arrow(pos=ball.pos, axis=ball.velocity*vscale, color=color.yellow)#the arrow
+
+ball.trail = curve (color=ball.color)#arrow trail
+
+scene.autoscale = false#no autoscale
+
+while true: #time frame which the loop runs
+    rate(100) #rate of frame
+    if ball.pos.x > wallR.pos.x: #if the center of the ball's x position becomes larger than the x position of the right wall
+        ball.velocity.x = -ball.velocity.x #reverts velocity (bounces ball)  
+    if ball.pos.x < wallL.pos.x: #if the center of the ball's x position becomes smaller than the x position of the left wall
+        ball.velocity.x = -ball.velocity.x #bounces ball
+    if ball.pos.y > wallU.pos.y:#if the ball hits the wall it bounces
+        ball.velocity.y = -ball.velocity.y#bounces ball
+    if ball.pos.y < wallD.pos.y:#if the ball hits the wall it bounces
+        ball.velocity.y = -ball.velocity.y#bounces ball
+    if ball.pos.z < wallB.pos.z:#if the ball hits the wall it bounces
+        ball.velocity.z = -ball.velocity.z#bounces ball
+    if ball.pos.z > wallO.pos.z:#if the ball hits the wall it bounces
+        ball.velocity.z = -ball.velocity.z#bounces ball
+        
+    varr.pos = ball.pos #has the arrow follow the ball
+    varr.axis = ball.velocity*vscale #has the arrow point in the same way as the the ball's velocity
+    
+    ball.pos = ball.pos + ball.velocity*deltat#position update
+    t = t + deltat
+
+    ball.trail.append(pos=ball.pos)#ball trail
