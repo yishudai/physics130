@@ -1,0 +1,218 @@
+###### Gatsby's Green Light! #######                                                                                           ##################
+######     Instructions      #######                                                                                           ##################
+## You are Jay Gatsby and you are looking for Daisy at the end of this path                                                    ##################
+## Use the direction keypad to control movements of your Gatsby ball                                                           ##################
+## Red Blocks = Tom Buchanans                                                                                                  ##################
+## Avoid them because they're evil and will bounce you back if you collide with any them                                       ##################
+## Colorful Blocks = Parties                                                                                                   ##################
+## Crash into colorful blocks to throw parties. Your ball's color will also change into the color of the party blocks.         ##################
+## Each time you change color, your score will increase                                                                        ##################
+## Your goal is to reach Daisy but also gain as many points as you can by throwing parties                                     ##################
+## Do not fall off the platform. You will die.                                                                                 ##################
+## You "win" the game if you reach Daisy, but you still die.                                                                   ##################
+## You can slow down and even go "backwards" by pressing the "down" key. But be careful not to go too slow!                    ##################
+## The slower you go, the more Tom Buchanans will appear to knock you out of your way.                                         ##################
+## Have fun!                                                                                                                   ##################
+## P.S. There are two cheats in my game... One to increase score and the other sorta makes the game easier...                  ##################
+#################################################################################################################################################
+## Special thanks to Doc, Matt, Henry, Rodney, and everyone else that has helped me with the making of this game!################################
+#################################################################################################################################################
+
+from visual import *
+from random import random
+
+scene.autoscale = false
+scene.background = (random(),random(), random())
+
+#Objects
+Floor = box(pos=(0,-6,0), size=(20,0.2,100), color=color.cyan) #platform
+
+ball = sphere(pos=(0,-5,5), radius = 1) #ball
+
+daisy = sphere(pos=(0,5,-997), radius = 8, color = color.green) #Daisy
+
+text(text='Daisy', align='center', height = 3, width = 3, depth=-3.3, pos = (0,-1,-1000), color=color.green) #"finish line"
+
+gravity = 0
+
+#List stuff
+floorList = []
+numfloors = 1
+
+#obsctacles
+EvilList = []
+
+#parties
+GoodList = []
+
+#score list
+ScoreList = []
+
+
+
+#ball properties
+mball = 5
+vball= vector (0, 0, -5)
+pball=mball*vball
+
+#forces 
+#force = vector (0,-9.8,0)
+force = vector (0,0,0)
+
+
+#function to move ball 
+def MoveBall():
+    force = vector (0,0,0)
+    if scene.kb.keys:
+        key = scene.kb.getkey()
+       
+        if key=='left': #left
+            force.x = force.x-750
+             
+        if key=='right': #right
+            force.x = force.x+750
+       
+        if key=='up': #forward
+             force.z = force.z-750
+             
+        if key =='down': #backward
+             force.z = force.z+750
+             
+        if key=='q' and 'w':
+            force.y = force.y + 4000
+             
+
+    return force
+
+#################################floor stuff###########################################
+def createFloor(): #creates floors
+    newfloor = box(size=(20,0.2,100))
+    newfloor.pos.x = 0
+    newfloor.pos.y = -6
+    newfloor.pos.z = ball.pos.z - 100
+    newfloor.color = (random(),random(),random())
+    
+    return newfloor
+
+########floor list
+def createBoxList(): 
+    floorList.append(createFloor())
+
+   
+###############################evil stuff################################################
+def createEvil(): #evil boxes
+    newevil = box(size=(1,1,1))
+    newevil.pos.x = -10+20*random()
+    newevil.pos.y = -5
+    newevil.pos.z = ball.pos.z-40-20*random()
+    newevil.color = color.red
+    
+    return newevil
+
+###################EvilList
+def createEvilList():
+    EvilList.append(createEvil())
+
+###################hitting evil stuff
+def hittingBox(pball):
+    n = 0
+    while n < len(EvilList): #checks for all evil boxes 
+
+        if mag(ball.pos-EvilList[n].pos) < ball.radius + 0.5: #if ball "hits" any evil boxes
+            
+            pball.z = -pball.z #momentum of ball in z direction reverses due to elastic collisions w/boxes
+        n = n + 1 #adding number of evil boxes 
+    return pball
+
+
+######################GREEN GOOD STUFF###################################################
+def createGood():
+    newgood = box(size=(1,1,1))
+    newgood.pos.x = -10+20*random()
+    newgood.pos.y = -5
+    newgood.pos.z = ball.pos.z-40-20*random()
+    newgood.color = (0.4,random(),random()) #assigns random colors to good boxes
+    
+    return newgood
+
+#################Good List####################
+def createGoodList():
+    GoodList.append(createGood())
+
+##########hitting good stuff##################
+def hittingGood():
+    z = 0
+    while z < len(GoodList): #check for all good boxes 
+
+        if mag(ball.pos-GoodList[z].pos) < ball.radius + 0.5: #if ball collides with any good boxes then
+            ball.color=GoodList[z].color #color of the ball changes into the random colors of the good boxes
+            ScoreList.append(t) #keeps a score            
+        z = z + 1 #adding good boxes
+
+###############using all mah lists!###################
+i = 0
+createBoxList()
+
+n = 0
+createEvilList()
+
+b = 0
+createGoodList()
+
+t=0
+
+#Loop
+while true:
+    rate(100)
+    dt = 0.01 #duration of time
+    
+    
+    force = MoveBall()
+
+    if ball.pos.y > -5:
+        force = force + vector(0,-9.8*mball,0)
+
+    if ball.pos.y < -5:
+        ball.pos.y = -5
+
+    
+    pball =  hittingBox(pball) + force*dt #momentum principle lol -- also calls function "hittingBall" as the pball from collision
+    vball = pball/mball #velocity and momentum and mass lol
+    ball.pos = ball.pos + vball*dt #position update lol
+
+    if ball.pos.z < floorList[i].pos.z: #making floors update itself lol
+        createBoxList()
+        i = i+1 
+        if i == 5: #making the floors disappear but don't freaking work wtf so whatever
+            floorList[0].visible = false
+            del floorList[0]
+            i = 4
+
+    scene.center = ball.pos + vector(0,4,3) #viewing angle. makes camera follow ball
+    t = t+dt
+
+    if mod(t,2) < .02: #when remainder of time divide by 2 is less than 0.02, make evil box
+        createEvilList()
+        n + 1
+        
+    if mod(t,2) < .01: #when remainder of time divide by 2 is less than 0.02, make good box
+        createGoodList()
+        b + 1
+
+    hittingGood() #calling function for good boxes
+       
+    if ball.pos.x > 11 or ball.pos.x < -11: #lol you die if you go outside the platform
+        print ('You died!')
+        print ('Party Points:', (len(ScoreList))*1000)
+        exit()
+        
+    if ball.pos.z < -1000: #z = -1000 aka finish line
+        print ('You have reached Daisy but you still died!!!')
+        print ('Party Points:', (len(ScoreList))*1000)
+        exit()
+
+    if mag(ball.pos-daisy.pos) < ball.radius + daisy.radius: #cool way to finish by making a jump for Daisy
+        print ('lol you crashed into Daisy and you died')
+        print ('Party Points:', (len(ScoreList))*1000)
+        exit()
+
